@@ -1,7 +1,9 @@
 package ru.ridkeim.fileexplorer
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
+import android.opengl.Visibility
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -15,6 +17,7 @@ import ru.ridkeim.fileexplorer.adapters.FilesAdapter
 import ru.ridkeim.fileexplorer.data.FileData
 import ru.ridkeim.fileexplorer.databinding.FragmentFilesBinding
 import java.io.File
+import java.util.*
 
 class FilesFragment : Fragment() {
     private lateinit var filesAdapter: FilesAdapter
@@ -64,9 +67,20 @@ class FilesFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         vBinding.fileRecycler.layoutManager = LinearLayoutManager(context)
         filesAdapter = FilesAdapter() {
-            Toast.makeText(context, it.fileName,Toast.LENGTH_SHORT).show()
+            val file = File(it.path)
             if(it.isDirectory){
-                viewModel.offerChildDirectory(File(it.path))
+                viewModel.offerChildDirectory(file)
+            }else{
+                AlertDialog.Builder(context)
+                        .setIcon(R.drawable.ic_launcher_foreground)
+                        .setTitle(file.name)
+                        .setMessage(
+                                "${file.absolutePath}\n${Date(file.lastModified())}\n${file.toURI()}"
+                        )
+                        .setPositiveButton("Закрыть"){dialog,_->
+                            dialog.dismiss()
+                        }
+                        .show()
             }
         }
         vBinding.fileRecycler.adapter = filesAdapter
@@ -81,6 +95,10 @@ class FilesFragment : Fragment() {
             FileData(it.path, it.name, it.isDirectory, it.length(), it.list()?.size ?: 0)
         }?.toList() ?: emptyList()
         filesAdapter.submitData(data)
+        vBinding.emptyMessage.visibility = when (data.size){
+            0 -> View.VISIBLE
+            else -> View.GONE
+        }
     }
 
     override fun onDestroy() {
