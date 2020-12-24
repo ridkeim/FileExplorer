@@ -1,21 +1,26 @@
 package ru.ridkeim.fileexplorer
 
 import android.Manifest
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Environment
-import android.provider.Settings
 import android.util.Log
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.commit
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import ru.ridkeim.fileexplorer.adapters.LinkAdapter
 import ru.ridkeim.fileexplorer.databinding.ActivityMainBinding
+import java.io.File
 
 class MainActivity : AppCompatActivity() {
+    private val linkAdapter by lazy{
+        LinkAdapter {
+            viewModel.popToParentTill(File(it.path))
+        }
+    }
     private lateinit var vBinding: ActivityMainBinding
     private val viewModel : MainViewModel by viewModels {
         MainViewModel.Factory()
@@ -25,6 +30,8 @@ class MainActivity : AppCompatActivity() {
         vBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(vBinding.root)
         setSupportActionBar(vBinding.toolbar)
+        vBinding.linkRecycler.layoutManager = LinearLayoutManager(this,RecyclerView.HORIZONTAL,false)
+        vBinding.linkRecycler.adapter = linkAdapter
         when (ContextCompat.checkSelfPermission(
                 applicationContext,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE
@@ -61,6 +68,10 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+        viewModel.directoryStack.observe(this) {
+            linkAdapter.submitData(it)
+            vBinding.linkRecycler.smoothScrollToPosition(it.size)
+        }
     }
 
     override fun onRequestPermissionsResult(
@@ -96,12 +107,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
         super.onBackPressed()
-        viewModel.popToParent()
-//        if(supportFragmentManager.backStackEntryCount == 0){
-//            finish()
-//        }else{
-//
-//        }
+        viewModel.popToExistingParent()
+        if(supportFragmentManager.backStackEntryCount == 0){
+            finish()
+        }
     }
     companion object {
         private const val PERMISSION_REQUEST_CODE: Int = 42

@@ -35,7 +35,7 @@ class FilesFragment : Fragment() {
             val fragment = FilesFragment()
             val args = Bundle()
             args.putString(ARG_PATH, path)
-            fragment.arguments = args;
+            fragment.arguments = args
             return fragment
         }
     }
@@ -64,7 +64,7 @@ class FilesFragment : Fragment() {
         filesAdapter = FilesAdapter() {
             Toast.makeText(context, it.fileName,Toast.LENGTH_SHORT).show()
             if(it.isDirectory){
-                viewModel.setCurrentDirectory(File(it.path))
+                viewModel.offerChildDirectory(File(it.path))
             }
         }
         vBinding.fileRecycler.adapter = filesAdapter
