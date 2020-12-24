@@ -67,6 +67,7 @@ class MainActivity : AppCompatActivity() {
                     addToBackStack(aPath)
                 }
             }
+            Log.d(TAG,"backStackEntryCount=${supportFragmentManager.backStackEntryCount}")
         }
         viewModel.directoryStack.observe(this) {
             linkAdapter.submitData(it)

@@ -1,5 +1,7 @@
 package ru.ridkeim.fileexplorer
 
+import android.app.Activity
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -69,6 +71,7 @@ class FilesFragment : Fragment() {
         }
         vBinding.fileRecycler.adapter = filesAdapter
         updateData()
+        Log.d(TAG,"view of fragment with $path is created")
     }
 
     private fun updateData() {
@@ -85,8 +88,18 @@ class FilesFragment : Fragment() {
         Log.d(TAG,"fragment with $path is destroyed")
     }
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        Log.d(TAG,"fragment with $path is attached")
+    }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        Log.d(TAG,"view of fragment with $path is destroyed")
+    }
 
-
-
+    override fun onDetach() {
+        super.onDetach()
+        Log.d(TAG,"fragment with $path is detached")
+    }
 }
