@@ -93,6 +93,8 @@ class FilesFragment : Fragment() {
         val filesList = file.listFiles()
         val data = filesList?.map {
             FileData(it.path, it.name, it.isDirectory, it.length(), it.list()?.size ?: 0)
+        }?.sortedBy {
+            !it.isDirectory
         }?.toList() ?: emptyList()
         filesAdapter.submitData(data)
         vBinding.emptyMessage.visibility = when (data.size){
